@@ -12,52 +12,38 @@ function beginSyncOperation() {
 }
 beginSyncOperation();
 
+// run after DOM loads
 document.addEventListener("DOMContentLoaded", () => {
-    // beginSyncOperation();
-    // beginSyncOperation();
-    // console.log(simulateAsyncOperation);
-
-    const btn = document.getElementById("btn");
+    const btn = document.getElementById("generateQuoteButton");
     btn.addEventListener("click", displayQuote);
 });
 
-// 2. Async operation - keeps apps responsive
+// 2. Async operation example
 function beginAsyncOperation() {
     console.log("Beg");
 
-    // setTimeout - starts a timer after a period of time
-    // Where a callback function gets invoked.
     setTimeout(() => {
         console.log("Running");
-    }, 3000); // after 3 seconds run to console
+    }, 3000);
 
     console.log("Stopping");
 }
 
 /***
-* Common Async Patterns
-* 1. Callbacks - like we see above
-* 2. Promises - cleaner chaining operations
-* 3. Async/Await - modern and easier to read
-*/
-
-/***
-* Simulate an async operations using a timeout.
-* The async keyword turns a function into an async function,
-* allowing it to return a promise implicitly or explicitly.
+* Simulate async operation using Promise
 */
 async function simulateAsyncOperation() {
     return new Promise((resolve) => {
         setTimeout(() => {
-            resolve(console.log("Data fetched after waiting"));
+            resolve("Data fetched after waiting");
         }, 5000);
     });
 }
 
+// Promise example
 const myPromise = new Promise((resolve, reject) => {
-    // here, we simulate a condition to demonstrate both,
-    // resolve and reject scenarios.
     const condition = true;
+
     if (condition) {
         resolve("Promise is resolved successfully.");
     } else {
@@ -70,32 +56,39 @@ myPromise
     .catch((error) => console.log(error));
 
 /***
-* API - Application Programming Interface
+* API - Fetch Random Quote
 */
-
 async function getQuote() {
     try {
-        // fetch returns a promise that resolves to the response object representing
-        // the response of the request
-        const response = await fetch("https://api.quotable.io/random");
+        const response = await fetch("https://dummyjson.com/quotes/random");
 
-        // checking if the response is okay (status code in the range of 200-299)
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        return response.json();
+        const data = await response.json();
+        return data;
+
     } catch (error) {
         console.error("Failed to fetch quote:", error.message);
+        return null;
     }
 }
 
+/***
+* Display Quote on Screen
+*/
 async function displayQuote() {
-    const quoteElement = document.getElementById("quote");
-    const authorElement = document.getElementById("author");
+    const quoteElement = document.getElementById("quoteText");
+    const authorElement = document.getElementById("authorText");
 
     const data = await getQuote();
 
-    quoteElement.textContent = data.content;
-    authorElement.textContent = "- " + data.author;
+    if (data) {
+        quoteElement.textContent = `"${data.quote}"`;
+        authorElement.textContent = "- " + data.author;
+    } else {
+        quoteElement.textContent = "Failed to load quote.";
+        authorElement.textContent = "";
+    }
 }
